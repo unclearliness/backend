@@ -17,8 +17,7 @@ import vn.khanguyen.backend.domain.res.RestResponse;
 
 @RestControllerAdvice
 public class GlobalException {
-    @ExceptionHandler(value = { ResourceNotFoundException.class, UsernameNotFoundException.class,
-            BadCredentialsException.class })
+    @ExceptionHandler(value = { ResourceNotFoundException.class, UsernameNotFoundException.class })
     public ResponseEntity<RestResponse<Object>> handleResourceNotFoundException(Exception ex) {
         RestResponse<Object> res = new RestResponse<>();
         res.setStatusCode(HttpStatus.BAD_REQUEST.value());
@@ -42,6 +41,15 @@ public class GlobalException {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
 
+    }
+
+    @ExceptionHandler(value = { BadCredentialsException.class })
+    public ResponseEntity<RestResponse<Object>> handleUserNotFound(Exception ex) {
+        RestResponse<Object> res = new RestResponse<>();
+        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        res.setError(ex.getMessage());
+        res.setMessage("username hoặc mật khẩu sai");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
 }

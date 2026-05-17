@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 import com.nimbusds.jose.util.Base64;
 
-import vn.khanguyen.backend.domain.dto.RestLoginDTO;
+import vn.khanguyen.backend.domain.req.auth.RestLoginDTO;
 
 @Service
 public class SecurityUtil {

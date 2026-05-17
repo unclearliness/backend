@@ -1,4 +1,4 @@
-package vn.khanguyen.backend.domain.dto;
+package vn.khanguyen.backend.domain.req.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 public class RestLoginDTO {
     private String accessToken;
+    private String refreshToken;
     private UserLogin user;
 
     @Getter

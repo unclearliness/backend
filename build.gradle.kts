@@ -37,11 +37,12 @@ dependencies {
 	implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
 	implementation("com.turkraft.springfilter:jpa:3.1.7")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
-
+	implementation("org.mapstruct:mapstruct:1.5.5.Final")
 
 	runtimeOnly("com.mysql:mysql-connector-j")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 
+	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")

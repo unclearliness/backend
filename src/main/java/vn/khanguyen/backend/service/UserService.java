@@ -9,34 +9,50 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import vn.khanguyen.backend.domain.Company;
+import vn.khanguyen.backend.domain.Role;
 import vn.khanguyen.backend.domain.User;
 import vn.khanguyen.backend.domain.dto.Meta;
 import vn.khanguyen.backend.domain.dto.ResultPaginationDTO;
+import vn.khanguyen.backend.domain.req.auth.ReqCreateUserDTO;
 import vn.khanguyen.backend.domain.res.user.ResCreateUserDTO;
 import vn.khanguyen.backend.domain.res.user.ResUpdateUserDTO;
 import vn.khanguyen.backend.domain.res.user.ResUserDTO;
+import vn.khanguyen.backend.mapper.UserMapper;
+import vn.khanguyen.backend.repository.RoleRepository;
 import vn.khanguyen.backend.repository.UserRepository;
+import vn.khanguyen.backend.util.constant.RoleEnum;
+import vn.khanguyen.backend.util.error.ResourceNotFoundException;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+
     private final PasswordEncoder passwordEncoder;
     private final CompanyService companyService;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, CompanyService companyService) {
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, CompanyService companyService, RoleRepository roleRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.companyService = companyService;
+        this.roleRepository = roleRepository;
+        this.userMapper = userMapper;
     }
 
-    public User createUser(User user) {
+    public ResCreateUserDTO createUser(User user) {
+        Role role = this.roleRepository.findByName(RoleEnum.USER.toString());
+        // set role
+        user.setRole(role);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         // check company
         if (user.getCompany() != null) {
             Company companyOpt = this.companyService.findById(user.getCompany().getId());
             user.setCompany(companyOpt);
         }
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return userMapper.toResCreateUserDTO(savedUser);
     }
 
     public List<User> getAllUsers() {
@@ -121,10 +137,6 @@ public class UserService {
         res.setAge(user.getAge());
         res.setGender(user.getGender());
         res.setAddress(user.getAddress());
-        res.setCreatedAt(user.getCreatedAt());
-        res.setUpdateAt(user.getUpdatedAt());
-        res.setCreatedBy(user.getCreatedBy());
-        res.setUpdateBy(user.getUpdatedBy());
         // set company
         if (user.getCompany() != null) {
             com.setId(user.getCompany().getId());

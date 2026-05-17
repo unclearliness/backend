@@ -16,10 +16,13 @@ public class SecurityConfiguration {
                         throws Exception {
                 http
                                 .csrf(csrf -> csrf.disable())
+                                .cors(Customizer.withDefaults())
                                 .authorizeHttpRequests(
                                                 authz -> authz
                                                                 .requestMatchers("/", "/auth/login", "/v3/api-docs/**",
                                                                                 "/storage/**",
+                                                                                "/auth/register",
+                                                                                "/auth/register/hr",
                                                                                 "/auth/refresh",
                                                                                 "/swagger-ui/**",
                                                                                 "/swagger-ui.html")

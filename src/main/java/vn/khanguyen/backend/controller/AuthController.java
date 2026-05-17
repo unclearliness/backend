@@ -19,7 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import vn.khanguyen.backend.domain.User;
 import vn.khanguyen.backend.domain.dto.LoginDTO;
-import vn.khanguyen.backend.domain.dto.RestLoginDTO;
+import vn.khanguyen.backend.domain.req.auth.ReqCreateUserDTO;
+import vn.khanguyen.backend.domain.req.auth.RestLoginDTO;
+import vn.khanguyen.backend.domain.res.auth.ResAccountDTO;
+import vn.khanguyen.backend.domain.res.user.ResCreateUserDTO;
+import vn.khanguyen.backend.mapper.UserMapper;
+import vn.khanguyen.backend.service.AuthService;
 import vn.khanguyen.backend.service.UserService;
 import vn.khanguyen.backend.util.SecurityUtil;
 import vn.khanguyen.backend.util.annotation.ApiMessage;
@@ -30,15 +35,19 @@ public class AuthController {
     private final SecurityUtil securityUtil;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final UserService userService;
+    private final AuthService authService;
+    private final UserMapper userMapper;
 
     @Value("${jobhunter.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
     public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil,
-            UserService userService) {
+            UserService userService, AuthService authService, UserMapper userMapper) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
         this.userService = userService;
+        this.authService = authService;
+        this.userMapper = userMapper;
     }
 
     @PostMapping("/auth/login")
@@ -62,11 +71,12 @@ public class AuthController {
             res.setUser(userLogin);
         }
         String access_token = this.securityUtil.createAccessToken(authentication.getName(), res.getUser());
+        String refresh_token = this.securityUtil.createRefreshToken(loginDTO.getUsername(), res);
         res.setAccessToken(access_token);
 
-        // tao refresh token
-        String refresh_token = this.securityUtil.createRefreshToken(loginDTO.getUsername(), res);
         this.userService.updateUserToken(refresh_token, loginDTO.getUsername());
+        res.setRefreshToken(refresh_token);
+
         System.out.println(">>>> token:   " + refresh_token);
         ResponseCookie resCookies = ResponseCookie.from("refresh_token", refresh_token)
                 .httpOnly(true)
@@ -79,20 +89,37 @@ public class AuthController {
 
     }
 
+    @PostMapping("/auth/register")
+    @ApiMessage("Register user account")
+    public ResponseEntity<ResCreateUserDTO> registerUser(@Valid @RequestBody ReqCreateUserDTO reqCreateUserDTO)
+            throws ResourceNotFoundException {
+        if (this.authService.isEmailExist(reqCreateUserDTO.getEmail())) {
+            throw new ResourceNotFoundException(
+                    "Email " + reqCreateUserDTO.getEmail() + " da ton tai, vui long su dung email khac");
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.authService.createUser(reqCreateUserDTO));
+    }
+
+    @PostMapping("/auth/register/hr")
+    @ApiMessage("Register HR account")
+    public ResponseEntity<ResCreateUserDTO> registerHr(@Valid @RequestBody ReqCreateUserDTO reqCreateUserDTO)
+            throws ResourceNotFoundException {
+        if (this.authService.isEmailExist(reqCreateUserDTO.getEmail())) {
+            throw new ResourceNotFoundException(
+                    "Email " + reqCreateUserDTO.getEmail() + " da ton tai, vui long su dung email khac");
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.authService.createHr(reqCreateUserDTO));
+    }
+
     @GetMapping("/auth/account")
     @ApiMessage("Decode token and get account info")
-    public ResponseEntity<RestLoginDTO.UserLogin> getAccount() {
+    public ResponseEntity<ResAccountDTO> getAccount() {
         String email = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
 
-        RestLoginDTO.UserLogin userLogin = new RestLoginDTO.UserLogin();
-
         User currentUser = this.userService.getUserByUsername(email);
-        if (currentUser != null) {
-            userLogin.setId(currentUser.getId());
-            userLogin.setEmail(currentUser.getEmail());
-            userLogin.setUsername(currentUser.getName());
-        }
-        return ResponseEntity.ok().body(userLogin);
+        return ResponseEntity.ok().body(this.userMapper.toResAccountDTO(currentUser));
 
     }
 
@@ -165,4 +192,6 @@ public class AuthController {
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, deleteSpringCookie.toString()).body(null);
 
     }
+
+
 }

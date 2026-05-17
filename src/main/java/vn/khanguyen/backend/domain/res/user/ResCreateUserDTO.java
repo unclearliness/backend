@@ -23,14 +23,6 @@ public class ResCreateUserDTO {
     private GenderEnum gender;
 
     private String address;
-    private String refreshToken;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
-    private Instant createdAt;
-
-    private Instant updateAt;
-    private String createdBy;
-    private String updateBy;
 
     private CompanyUser company;
 

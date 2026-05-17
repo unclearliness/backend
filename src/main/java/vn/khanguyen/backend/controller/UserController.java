@@ -40,8 +40,7 @@ public class UserController {
             throw new ResourceNotFoundException(
                     "Email" + user.getEmail() + "đã tồn tại, vui lòng sử dụng email khác");
         }
-        User createUser = this.userService.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.convertToCreateUser(createUser));
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createUser(user));
 
     }
 
