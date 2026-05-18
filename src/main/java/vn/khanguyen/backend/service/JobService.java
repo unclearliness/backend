@@ -93,6 +93,10 @@ public class JobService {
         return this.jobRepository.findById(id).orElse(null);
     }
 
+    public boolean isJobExist(long id) {
+        return this.jobRepository.existsById(id);
+    }
+
     public ResultPaginationDTO getAllJobs(Specification<Job> spec, Pageable pageable) {
         Page<Job> pageJob = this.jobRepository.findAll(spec, pageable);
 

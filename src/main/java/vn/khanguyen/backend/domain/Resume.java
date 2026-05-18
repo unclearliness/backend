@@ -4,13 +4,7 @@ import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import vn.khanguyen.backend.util.SecurityUtil;
@@ -48,6 +42,16 @@ public class Resume {
     private String createdBy;
 
     private String updatedBy;
+
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "job_id")
+    private Job job;
+
 
     @PrePersist
     public void handleBeforeCreate() {

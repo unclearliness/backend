@@ -107,6 +107,10 @@ public class UserService {
         return this.userRepository.findById(id).orElse(null);
     }
 
+    public boolean isIdExist(long id) {
+        return this.userRepository.existsById(id);
+    }
+
     public boolean isEmailExist(String email) {
         return this.userRepository.findByEmail(email) != null;
     }

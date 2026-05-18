@@ -18,9 +18,10 @@ public class SecurityConfiguration {
                                 .csrf(csrf -> csrf.disable())
                                 .cors(Customizer.withDefaults())
                                 .authorizeHttpRequests(
-                                                authz -> authz
+                                                                authz -> authz
                                                                 .requestMatchers("/", "/auth/login", "/v3/api-docs/**",
                                                                                 "/storage/**",
+                                                                                "/mock/**",
                                                                                 "/auth/register",
                                                                                 "/auth/register/hr",
                                                                                 "/auth/refresh",
